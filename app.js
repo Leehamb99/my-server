@@ -1,113 +1,35 @@
-const express = require('express');
-const cors = require("cors");
+const express = require('express')
 const app = express();
-app.use(express.json());
+const cors = require('cors');
+
+const tenWebsites = [
+    {title: "Cat.com | Cat | Caterpillar", link: "https://www.cat.com/", description: "Welcome! Select a region and language to continue. Select a Region, Africa, Middle-East, Asia, Australia, New Zealand, Eurasia, Europe, Latin ..."},
+    {title: "Cat - Wikipedia", link: "https://en.wikipedia.org/wiki/Cat", description: "The cat (Felis catus) is a domestic species of small carnivorous mammal. ... It is the only domesticated species in the family Felidae and is often referred to as ..."},
+    {title: "cat | Breeds & Facts - Encyclopedia Britannica", link: "https://www.britannica.com/animal/cat", description: "Aug 16, 2022 — cat, (Felis catus), also called house cat or domestic cat, domesticated member of the family Felidae, order Carnivora, and the smallest ..."},
+    {title: "Cat phones: Made Mighty", link: "https://www.catphones.com/", description: "Our comprehensive range of market-leading rugged smartphones are no different. Unlike traditional phones, Cat phones are engineered to work under extraordinary ..."},
+    {title: "Cat Breeds | Types of Cats - Purina", link: "https://www.purina.com/cats/cat-breeds", description: "Cat Breeds. Thinking about getting a cat but not sure which breed is right for you? We can help."},
+    {title: "Domestic Cat - National Geographic", link: "https://www.nationalgeographic.com/animals/mammals/facts/domestic-cat", description: "Domestic cats, no matter their breed, are all members of one species. Relationship with Humans. Felis catus has had a very long relationship with humans."},
+    {title: "Cat Owners Can (Almost) All Agree on One Thing - The Atlantic", link: "https://www.theatlantic.com/science/archive/2022/08/cat-gum-health-brush-teeth/671206/", description: "Aug 23, 2022 — “I'm always very shocked if someone says they brush their cat's teeth,” says Anson Tsugawa, a veterinary dentist in California. When Steve ..."},
+    {title: "Thinking of getting a cat? | International Cat Care", link: "https://icatcare.org/advice/thinking-of-getting-a-cat/", description: "Oct 1, 2018 — As pets go, cats are relatively low maintenance compared to dogs which need companionship, walking, training etc. However, like any pet, they do ..."},
+    {title: "Cats | Healthy Pets, Healthy People | CDC", link: "https://www.cdc.gov/healthypets/pets/cats.html", description: "Nearly 40 million households in the United States have pet cats. Although cats are great companions, cat owners should be aware that sometimes cats can carry ..."},
+    {title: "Cat Care | Grooming | Nutrition | Disease | Behavior - ASPCA", link: "https://www.aspca.org/pet-care/cat-care", description: "Cat Care. Do you have a feline companion? We've got you covered. Our ASPCA veterinarians and behaviorists offer up tips, solutions and answers to some of ..."}
+]
+
+
 app.use(cors());
 
-let cats = [
-    { id: 1, name: 'Zelda', age: 3, adopted: false},
-    { id: 2, name: 'Tigerlily', age: 10, adopted: false },
-    { id: 3, name: 'Rumble', age: 12, adopted: false },
-  ];
+app.get('/', (req, res) => res.send('Hello World!'));
 
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+app.get('/ten-websites', (req, res) => {
+    res.send(tenWebsites)
 })
 
-app.get("/cats", (req, res) => {
-    res.json(cats)
-    
-
+app.get('/ten-websites/random', (req, res) => {
+    let index = Math.floor(Math.random() * 9 );
+    res.send(tenWebsites[index].link)
 })
-
-app.get("/cats/:id", (req, res) => {
-
-    try {
-        const catId = parseInt(req.params.id)
-
-        const selectedCat = cats.find(cat => cat.id === catId)
-        if (!selectedCat) {
-            throw new Error('This cat does not exist!')
-        }
-        res.send(selectedCat)
-
-    } catch(err) {
-        res.status(404).send({message: err.message })
-    }
-})
-
-app.post("/cats", (req, res) => {
-
-    console.log("line 42", req.body)
-    const newName = req.body.name
-    const newAge = req.body.age
-    const newId = cats[cats.length - 1].id + 1
-    let newCat = { name :newName, age:newAge, adopted: false}
-    newCat = {...newCat , id : newId}
-    cats.push(newCat);
-    res.send(newCat);
-})
-
-app.delete("/cats", (req, res) => {
-    while (cats.length) cats.pop()
-
-    res.status(204).end()
-})
-
-module.exports = app;
+  
 
 
 
-app.get("/cats/:id/adopted", (req, res) => {
-    const catId = parseInt(req.params.id) - 1
-    cats[catId].adopted = true;
-    cats = cats.splice(catId)
-    res.send(`Thanks for adopting ${cats[catId].name}`)
-    console.log(cats)
-
-
-
-})
-
-
-app.put('/cats/:id', (req, res, next) => {
-    console.log(req.body)
-    const catId = parseInt(req.params.id) 
-    const selectedCat = cats.findIndex(cat => cat.id === catId)
-    // if ((!req.body)){
-    //     let updatedCat = {id: catId, name: cats[catId - 1].name, age: cats[catId- 1].age, adopted: cats[catId - 1].adopted}
-    //     cats[selectedCat] = updatedCat;
-    //     res.send(updatedCat)
-    // }
-    if ((!req.body.name && !req.body.age)){
-        let updatedCat = {id: catId, name: cats[catId - 1].name, age: cats[catId- 1].age, ...req.body}
-        cats[selectedCat] = updatedCat;
-        res.send(updatedCat)
-
-    }else if ((!req.body.name && !req.body.adopted)){
-       let updatedCat = {id: catId, name: cats[catId - 1].name, adopted: cats[catId - 1].adopted, ...req.body}
-       cats[selectedCat] = updatedCat;
-       res.send(updatedCat)
-
-    }else if ((!req.body.age && !req.body.adopted)){
-        let updatedCat = {id: catId, age: cats[catId - 1].age, adopted: cats[catId - 1].adopted, ...req.body}
-        cats[selectedCat] = updatedCat;
-        res.send(updatedCat)
-
-    }else if ((!req.body.adopted)){
-        let updatedCat = {id: catId, adopted: cats[catId -1].adopted, ...req.body}
-        cats[selectedCat] = updatedCat;
-        res.send(updatedCat)
-
-    }else if ((!req.body.age)){
-        let updatedCat = {id: catId, age: cats[catId -1].age, ...req.body}
-        cats[selectedCat] = updatedCat;
-        res.send(updatedCat)
-
-    }else if ((!req.body.name)){
-        let updatedCat = {id: catId, name: cats[catId - 1].name, ...req.body}
-        cats[selectedCat] = updatedCat;
-        res.send(updatedCat)
-    }
-})
+module.exports = app
